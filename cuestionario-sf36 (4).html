@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario SF-36 - Calidad de Vida</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: visible;
+            margin-bottom: 40px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .patient-info {
+            padding: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .patient-info input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .patient-info input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .instructions {
+            padding: 30px;
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            margin: 20px 30px;
+            border-radius: 8px;
+        }
+
+        .instructions p {
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            margin: 0 30px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .question-section {
+            padding: 30px;
+        }
+
+        .section-title {
+            background: #f0f0f0;
+            padding: 15px 20px;
+            margin: 30px 0 20px 0;
+            border-left: 4px solid #667eea;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .question {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .question:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .question-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            color: #444;
+        }
+
+        .option input[type="radio"]:checked ~ label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .yes-no-options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .yes-no-options .option {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: none;
+            padding: 30px;
+            background: white;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-item {
+            background: #f8f9ff;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .result-item span {
+            color: #666;
+        }
+
+        .download-btn {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .score-card h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .dimension-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dimension-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .dimension-score {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .dimension-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .dimension-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        .dimension-interpretation {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .interpretation-section {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .interpretation-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .interpretation-section p {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .interpretation-section ul {
+            margin-left: 20px;
+            color: #444;
+            line-height: 1.8;
+        }
+
+        .summary-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .component-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+        }
+
+        .component-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .component-score {
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .component-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 300px;
+        }
+
+        .chart-container h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .chart-wrapper {
+                height: 300px;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .question {
+                padding: 20px 15px;
+            }
+
+            .yes-no-options {
+                flex-direction: column;
+            }
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 20px 30px;
+            border-radius: 12px;
+        }
+
+        .completion-message h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .completion-message p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Cuestionario SF-36</h1>
+            <p>Evaluación de Calidad de Vida Relacionada con la Salud</p>
+        </div>
+
+        <div class="patient-info" id="patientInfo">
+            <input type="text" id="patientName" placeholder="Nombre y Apellidos" required>
+            <input type="text" id="patientCode" placeholder="Código (opcional)">
+        </div>
+
+        <div class="instructions">
+            <p><strong>INSTRUCCIONES:</strong> Las preguntas que siguen a continuación se refieren a lo que usted piensa sobre su salud. Sus respuestas permitirán saber cómo se encuentra usted y hasta qué punto es capaz de hacer sus actividades habituales. Conteste cada pregunta tal como se indica. Si no está seguro/a de cómo responder a una pregunta, por favor conteste lo que le parezca más cierto.</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">0 de 36 preguntas completadas</div>
+
+        <form id="sf36Form">
+            <div class="question-section">
+                <!-- Pregunta 1 -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">1.</span>
+                        En general, usted diría que su salud es:
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q1_1" name="q1" value="1" required>
+                            <label for="q1_1">Excelente</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q1_2" name="q1" value="2">
+                            <label for="q1_2">Muy buena</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q1_3" name="q1" value="3">
+                            <label for="q1_3">Buena</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q1_4" name="q1" value="4">
+                            <label for="q1_4">Regular</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q1_5" name="q1" value="5">
+                            <label for="q1_5">Mala</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">2.</span>
+                        ¿Cómo diría que es su salud actual, comparada con la de hace un año?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q2_1" name="q2" value="1" required>
+                            <label for="q2_1">Mucho mejor ahora que hace un año</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q2_2" name="q2" value="2">
+                            <label for="q2_2">Algo mejor ahora que hace un año</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q2_3" name="q2" value="3">
+                            <label for="q2_3">Más o menos igual que hace un año</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q2_4" name="q2" value="4">
+                            <label for="q2_4">Algo peor ahora que hace un año</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q2_5" name="q2" value="5">
+                            <label for="q2_5">Mucho peor ahora que hace un año</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    LAS SIGUIENTES PREGUNTAS SE REFIEREN A ACTIVIDADES O COSAS QUE USTED PODRÍA HACER EN UN DÍA NORMAL
+                </div>
+
+                <!-- Preguntas 3-12 (Actividades físicas) -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">3.</span>
+                        Su salud actual, ¿le limita para hacer esfuerzos intensos, tales como correr, levantar objetos pesados, o participar en deportes agotadores?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q3_1" name="q3" value="1" required>
+                            <label for="q3_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q3_2" name="q3" value="2">
+                            <label for="q3_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q3_3" name="q3" value="3">
+                            <label for="q3_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">4.</span>
+                        Su salud actual, ¿le limita para hacer esfuerzos moderados, como mover una mesa, pasar la aspiradora, jugar a los bolos o caminar más de una hora?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q4_1" name="q4" value="1" required>
+                            <label for="q4_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q4_2" name="q4" value="2">
+                            <label for="q4_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q4_3" name="q4" value="3">
+                            <label for="q4_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">5.</span>
+                        Su salud actual, ¿le limita para coger o llevar la bolsa de la compra?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q5_1" name="q5" value="1" required>
+                            <label for="q5_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q5_2" name="q5" value="2">
+                            <label for="q5_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q5_3" name="q5" value="3">
+                            <label for="q5_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">6.</span>
+                        Su salud actual, ¿le limita para subir varios pisos por la escalera?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q6_1" name="q6" value="1" required>
+                            <label for="q6_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q6_2" name="q6" value="2">
+                            <label for="q6_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q6_3" name="q6" value="3">
+                            <label for="q6_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">7.</span>
+                        Su salud actual, ¿le limita para subir un solo piso por la escalera?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q7_1" name="q7" value="1" required>
+                            <label for="q7_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q7_2" name="q7" value="2">
+                            <label for="q7_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q7_3" name="q7" value="3">
+                            <label for="q7_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">8.</span>
+                        Su salud actual, ¿le limita para agacharse o arrodillarse?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q8_1" name="q8" value="1" required>
+                            <label for="q8_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q8_2" name="q8" value="2">
+                            <label for="q8_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q8_3" name="q8" value="3">
+                            <label for="q8_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">9.</span>
+                        Su salud actual, ¿le limita para caminar un kilómetro o más?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q9_1" name="q9" value="1" required>
+                            <label for="q9_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q9_2" name="q9" value="2">
+                            <label for="q9_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q9_3" name="q9" value="3">
+                            <label for="q9_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">10.</span>
+                        Su salud actual, ¿le limita para caminar varias manzanas (varios centenares de metros)?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q10_1" name="q10" value="1" required>
+                            <label for="q10_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q10_2" name="q10" value="2">
+                            <label for="q10_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q10_3" name="q10" value="3">
+                            <label for="q10_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">11.</span>
+                        Su salud actual, ¿le limita para caminar una sola manzana (unos 100 metros)?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q11_1" name="q11" value="1" required>
+                            <label for="q11_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q11_2" name="q11" value="2">
+                            <label for="q11_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q11_3" name="q11" value="3">
+                            <label for="q11_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">12.</span>
+                        Su salud actual, ¿le limita para bañarse o vestirse por sí mismo?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q12_1" name="q12" value="1" required>
+                            <label for="q12_1">Sí, me limita mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q12_2" name="q12" value="2">
+                            <label for="q12_2">Sí, me limita un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q12_3" name="q12" value="3">
+                            <label for="q12_3">No, no me limita nada</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    LAS SIGUIENTES PREGUNTAS SE REFIEREN A PROBLEMAS EN SU TRABAJO O EN SUS ACTIVIDADES COTIDIANAS
+                </div>
+
+                <!-- Preguntas 13-19 (Sí/No) -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">13.</span>
+                        Durante las 4 últimas semanas, ¿tuvo que reducir el tiempo dedicado al trabajo o a sus actividades cotidianas, a causa de su salud física?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q13_si" name="q13" value="SI" required>
+                            <label for="q13_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q13_no" name="q13" value="NO">
+                            <label for="q13_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">14.</span>
+                        Durante las 4 últimas semanas, ¿hizo menos de lo que hubiera querido hacer, a causa de su salud física?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q14_si" name="q14" value="SI" required>
+                            <label for="q14_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q14_no" name="q14" value="NO">
+                            <label for="q14_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">15.</span>
+                        Durante las 4 últimas semanas, ¿tuvo que dejar de hacer algunas tareas en su trabajo o en sus actividades cotidianas, a causa de su salud física?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q15_si" name="q15" value="SI" required>
+                            <label for="q15_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q15_no" name="q15" value="NO">
+                            <label for="q15_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">16.</span>
+                        Durante las 4 últimas semanas, ¿tuvo dificultad para hacer su trabajo o sus actividades cotidianas (por ejemplo, le costó más de lo normal), a causa de su salud física?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q16_si" name="q16" value="SI" required>
+                            <label for="q16_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q16_no" name="q16" value="NO">
+                            <label for="q16_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">17.</span>
+                        Durante las 4 últimas semanas, ¿tuvo que reducir el tiempo dedicado al trabajo o a sus actividades cotidianas, a causa de algún problema emocional (como estar triste, deprimido, o nervioso)?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q17_si" name="q17" value="SI" required>
+                            <label for="q17_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q17_no" name="q17" value="NO">
+                            <label for="q17_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">18.</span>
+                        Durante las 4 últimas semanas, ¿hizo menos de lo que hubiera querido hacer, a causa de algún problema emocional (como estar triste, deprimido, o nervioso)?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q18_si" name="q18" value="SI" required>
+                            <label for="q18_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q18_no" name="q18" value="NO">
+                            <label for="q18_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">19.</span>
+                        Durante las 4 últimas semanas, ¿no hizo su trabajo o sus actividades cotidianas tan cuidadosamente como de costumbre, a causa de algún problema emocional (como estar triste, deprimido, o nervioso)?
+                    </div>
+                    <div class="yes-no-options">
+                        <div class="option">
+                            <input type="radio" id="q19_si" name="q19" value="SI" required>
+                            <label for="q19_si">SÍ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q19_no" name="q19" value="NO">
+                            <label for="q19_no">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preguntas 20-22 -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">20.</span>
+                        Durante las 4 últimas semanas, ¿hasta qué punto su salud física o los problemas emocionales han dificultado sus actividades sociales habituales con la familia, los amigos, los vecinos u otras personas?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q20_1" name="q20" value="1" required>
+                            <label for="q20_1">Nada</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q20_2" name="q20" value="2">
+                            <label for="q20_2">Un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q20_3" name="q20" value="3">
+                            <label for="q20_3">Regular</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q20_4" name="q20" value="4">
+                            <label for="q20_4">Bastante</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q20_5" name="q20" value="5">
+                            <label for="q20_5">Mucho</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">21.</span>
+                        ¿Tuvo dolor en alguna parte del cuerpo durante las 4 últimas semanas?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q21_1" name="q21" value="1" required>
+                            <label for="q21_1">No, ninguno</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q21_2" name="q21" value="2">
+                            <label for="q21_2">Sí, muy poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q21_3" name="q21" value="3">
+                            <label for="q21_3">Sí, un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q21_4" name="q21" value="4">
+                            <label for="q21_4">Sí, moderado</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q21_5" name="q21" value="5">
+                            <label for="q21_5">Sí, mucho</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q21_6" name="q21" value="6">
+                            <label for="q21_6">Sí, muchísimo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">22.</span>
+                        Durante las 4 últimas semanas, ¿hasta qué punto el dolor le ha dificultado su trabajo habitual (incluido el trabajo fuera de casa y las tareas domésticas)?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q22_1" name="q22" value="1" required>
+                            <label for="q22_1">Nada</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q22_2" name="q22" value="2">
+                            <label for="q22_2">Un poco</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q22_3" name="q22" value="3">
+                            <label for="q22_3">Regular</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q22_4" name="q22" value="4">
+                            <label for="q22_4">Bastante</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q22_5" name="q22" value="5">
+                            <label for="q22_5">Mucho</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    LAS PREGUNTAS QUE SIGUEN SE REFIEREN A CÓMO SE HA SENTIDO Y CÓMO LE HAN IDO LAS COSAS DURANTE LAS 4 ÚLTIMAS SEMANAS
+                </div>
+
+                <!-- Preguntas 23-32 -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">23.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió lleno de vitalidad?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q23_1" name="q23" value="1" required>
+                            <label for="q23_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q23_2" name="q23" value="2">
+                            <label for="q23_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q23_3" name="q23" value="3">
+                            <label for="q23_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q23_4" name="q23" value="4">
+                            <label for="q23_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q23_5" name="q23" value="5">
+                            <label for="q23_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q23_6" name="q23" value="6">
+                            <label for="q23_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">24.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo estuvo muy nervioso?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q24_1" name="q24" value="1" required>
+                            <label for="q24_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q24_2" name="q24" value="2">
+                            <label for="q24_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q24_3" name="q24" value="3">
+                            <label for="q24_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q24_4" name="q24" value="4">
+                            <label for="q24_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q24_5" name="q24" value="5">
+                            <label for="q24_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q24_6" name="q24" value="6">
+                            <label for="q24_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">25.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió tan bajo de moral que nada podía animarle?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q25_1" name="q25" value="1" required>
+                            <label for="q25_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q25_2" name="q25" value="2">
+                            <label for="q25_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q25_3" name="q25" value="3">
+                            <label for="q25_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q25_4" name="q25" value="4">
+                            <label for="q25_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q25_5" name="q25" value="5">
+                            <label for="q25_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q25_6" name="q25" value="6">
+                            <label for="q25_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">26.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió calmado y tranquilo?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q26_1" name="q26" value="1" required>
+                            <label for="q26_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q26_2" name="q26" value="2">
+                            <label for="q26_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q26_3" name="q26" value="3">
+                            <label for="q26_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q26_4" name="q26" value="4">
+                            <label for="q26_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q26_5" name="q26" value="5">
+                            <label for="q26_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q26_6" name="q26" value="6">
+                            <label for="q26_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">27.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo tuvo mucha energía?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q27_1" name="q27" value="1" required>
+                            <label for="q27_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q27_2" name="q27" value="2">
+                            <label for="q27_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q27_3" name="q27" value="3">
+                            <label for="q27_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q27_4" name="q27" value="4">
+                            <label for="q27_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q27_5" name="q27" value="5">
+                            <label for="q27_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q27_6" name="q27" value="6">
+                            <label for="q27_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">28.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió desanimado y triste?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q28_1" name="q28" value="1" required>
+                            <label for="q28_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q28_2" name="q28" value="2">
+                            <label for="q28_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q28_3" name="q28" value="3">
+                            <label for="q28_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q28_4" name="q28" value="4">
+                            <label for="q28_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q28_5" name="q28" value="5">
+                            <label for="q28_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q28_6" name="q28" value="6">
+                            <label for="q28_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">29.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió agotado?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q29_1" name="q29" value="1" required>
+                            <label for="q29_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q29_2" name="q29" value="2">
+                            <label for="q29_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q29_3" name="q29" value="3">
+                            <label for="q29_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q29_4" name="q29" value="4">
+                            <label for="q29_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q29_5" name="q29" value="5">
+                            <label for="q29_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q29_6" name="q29" value="6">
+                            <label for="q29_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">30.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió feliz?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q30_1" name="q30" value="1" required>
+                            <label for="q30_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q30_2" name="q30" value="2">
+                            <label for="q30_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q30_3" name="q30" value="3">
+                            <label for="q30_3">Muchas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q30_4" name="q30" value="4">
+                            <label for="q30_4">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q30_5" name="q30" value="5">
+                            <label for="q30_5">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q30_6" name="q30" value="6">
+                            <label for="q30_6">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">31.</span>
+                        Durante las 4 últimas semanas, ¿cuánto tiempo se sintió cansado?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q31_1" name="q31" value="1" required>
+                            <label for="q31_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q31_2" name="q31" value="2">
+                            <label for="q31_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q31_3" name="q31" value="3">
+                            <label for="q31_3">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q31_4" name="q31" value="4">
+                            <label for="q31_4">Sólo alguna vez</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">32.</span>
+                        Durante las 4 últimas semanas, ¿con qué frecuencia la salud física o los problemas emocionales le han dificultado sus actividades sociales (como visitar a los amigos o familiares)?
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q32_1" name="q32" value="1" required>
+                            <label for="q32_1">Siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q32_2" name="q32" value="2">
+                            <label for="q32_2">Casi siempre</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q32_3" name="q32" value="3">
+                            <label for="q32_3">Algunas veces</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q32_4" name="q32" value="4">
+                            <label for="q32_4">Sólo alguna vez</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q32_5" name="q32" value="5">
+                            <label for="q32_5">Nunca</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    POR FAVOR, DIGA SI LE PARECE CIERTA O FALSA CADA UNA DE LAS SIGUIENTES FRASES
+                </div>
+
+                <!-- Preguntas 33-36 -->
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">33.</span>
+                        Creo que me pongo enfermo más fácilmente que otras personas.
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q33_1" name="q33" value="1" required>
+                            <label for="q33_1">Totalmente cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q33_2" name="q33" value="2">
+                            <label for="q33_2">Bastante cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q33_3" name="q33" value="3">
+                            <label for="q33_3">No lo sé</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q33_4" name="q33" value="4">
+                            <label for="q33_4">Bastante falsa</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q33_5" name="q33" value="5">
+                            <label for="q33_5">Totalmente falsa</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">34.</span>
+                        Estoy tan sano como cualquiera.
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q34_1" name="q34" value="1" required>
+                            <label for="q34_1">Totalmente cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q34_2" name="q34" value="2">
+                            <label for="q34_2">Bastante cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q34_3" name="q34" value="3">
+                            <label for="q34_3">No lo sé</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q34_4" name="q34" value="4">
+                            <label for="q34_4">Bastante falsa</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q34_5" name="q34" value="5">
+                            <label for="q34_5">Totalmente falsa</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">35.</span>
+                        Creo que mi salud va a empeorar.
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q35_1" name="q35" value="1" required>
+                            <label for="q35_1">Totalmente cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q35_2" name="q35" value="2">
+                            <label for="q35_2">Bastante cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q35_3" name="q35" value="3">
+                            <label for="q35_3">No lo sé</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q35_4" name="q35" value="4">
+                            <label for="q35_4">Bastante falsa</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q35_5" name="q35" value="5">
+                            <label for="q35_5">Totalmente falsa</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">
+                        <span class="question-number">36.</span>
+                        Mi salud es excelente.
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q36_1" name="q36" value="1" required>
+                            <label for="q36_1">Totalmente cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q36_2" name="q36" value="2">
+                            <label for="q36_2">Bastante cierta</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q36_3" name="q36" value="3">
+                            <label for="q36_3">No lo sé</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q36_4" name="q36" value="4">
+                            <label for="q36_4">Bastante falsa</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q36_5" name="q36" value="5">
+                            <label for="q36_5">Totalmente falsa</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Reiniciar</button>
+                <button type="submit" class="btn btn-primary">Finalizar Cuestionario</button>
+            </div>
+        </form>
+
+        <div class="results" id="results">
+            <div class="completion-message">
+                <h2>✅ Cuestionario Completado</h2>
+                <p>Gracias por completar el Cuestionario SF-36</p>
+            </div>
+            <h2>Resumen de Respuestas</h2>
+            <div id="resultsSummary"></div>
+            
+            <div class="section-title" style="margin-top: 30px;">📈 Visualización de Resultados</div>
+            
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Gráfico Radial - 8 Dimensiones</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Gráfico de Barras - Puntuaciones</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Componentes Físico vs Mental</h3>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="componentChart"></canvas>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary download-btn" onclick="downloadResults()">📥 Descargar Resultados (PDF)</button>
+            <button class="btn btn-secondary download-btn" onclick="window.location.reload()">Realizar Nuevo Cuestionario</button>
+        </div>
+    </div>
+
+    <script>
+        // SF-36 Scoring System
+        const SF36_SCORING = {
+            // Physical Functioning (PF) - Questions 3-12
+            physicalFunctioning: {
+                questions: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                recodeValues: (val) => val // No recoding needed
+            },
+            // Role Physical (RP) - Questions 13-16
+            rolePhysical: {
+                questions: [13, 14, 15, 16],
+                recodeValues: (val) => val === 'NO' ? 2 : 1 // NO=2, SI=1
+            },
+            // Bodily Pain (BP) - Questions 21-22
+            bodilyPain: {
+                questions: [21, 22],
+                recodeValues: (val) => {
+                    // Recode pain questions
+                    const recoding21 = {1: 6, 2: 5.4, 3: 4.2, 4: 3.1, 5: 2.0, 6: 1.0};
+                    const recoding22 = {1: 6, 2: 5, 3: 4, 4: 3, 5: 2};
+                    return recoding21[val] || recoding22[val] || val;
+                }
+            },
+            // General Health (GH) - Questions 1, 33-36
+            generalHealth: {
+                questions: [1, 33, 34, 35, 36],
+                recodeValues: (val, qNum) => {
+                    // Recode 34 and 36 (reverse scoring)
+                    if (qNum === 34 || qNum === 36) {
+                        return 6 - parseInt(val);
+                    }
+                    return parseInt(val);
+                }
+            },
+            // Vitality (VT) - Questions 23, 27, 29, 31
+            vitality: {
+                questions: [23, 27, 29, 31],
+                recodeValues: (val, qNum) => {
+                    // Recode 23, 27 (reverse scoring)
+                    if (qNum === 23 || qNum === 27) {
+                        return 7 - parseInt(val);
+                    }
+                    return parseInt(val);
+                }
+            },
+            // Social Functioning (SF) - Questions 20, 32
+            socialFunctioning: {
+                questions: [20, 32],
+                recodeValues: (val) => parseInt(val)
+            },
+            // Role Emotional (RE) - Questions 17-19
+            roleEmotional: {
+                questions: [17, 18, 19],
+                recodeValues: (val) => val === 'NO' ? 2 : 1
+            },
+            // Mental Health (MH) - Questions 24, 25, 26, 28, 30
+            mentalHealth: {
+                questions: [24, 25, 26, 28, 30],
+                recodeValues: (val, qNum) => {
+                    // Recode 26, 30 (reverse scoring)
+                    if (qNum === 26 || qNum === 30) {
+                        return 7 - parseInt(val);
+                    }
+                    return parseInt(val);
+                }
+            }
+        };
+
+        function calculateDimensionScore(dimension, answers) {
+            const config = SF36_SCORING[dimension];
+            let sum = 0;
+            let count = 0;
+
+            config.questions.forEach(qNum => {
+                const answer = answers.respuestas[`pregunta_${qNum}`];
+                if (answer) {
+                    let value = answer.valor;
+                    
+                    // Handle YES/NO questions
+                    if (value === 'SI' || value === 'NO') {
+                        value = config.recodeValues(value);
+                    } else {
+                        value = config.recodeValues(parseInt(value), qNum);
+                    }
+                    
+                    sum += value;
+                    count++;
+                }
+            });
+
+            if (count === 0) return 0;
+
+            // Calculate raw score
+            let rawScore = sum;
+            
+            // Get min and max possible scores for this dimension
+            let minScore, maxScore;
+            
+            switch(dimension) {
+                case 'physicalFunctioning':
+                    minScore = 10; maxScore = 30;
+                    break;
+                case 'rolePhysical':
+                case 'roleEmotional':
+                    minScore = count; maxScore = count * 2;
+                    break;
+                case 'bodilyPain':
+                case 'socialFunctioning':
+                    minScore = 2; maxScore = 12;
+                    break;
+                case 'generalHealth':
+                    minScore = 5; maxScore = 25;
+                    break;
+                case 'vitality':
+                    minScore = 4; maxScore = 24;
+                    break;
+                case 'mentalHealth':
+                    minScore = 5; maxScore = 30;
+                    break;
+            }
+
+            // Transform to 0-100 scale
+            const transformedScore = ((rawScore - minScore) / (maxScore - minScore)) * 100;
+            return Math.round(transformedScore);
+        }
+
+        function interpretScore(score) {
+            if (score >= 75) return { level: 'Excelente', color: '#10b981' };
+            if (score >= 50) return { level: 'Buena', color: '#667eea' };
+            if (score >= 25) return { level: 'Regular', color: '#f59e0b' };
+            return { level: 'Necesita atención', color: '#ef4444' };
+        }
+
+        function getDimensionName(dimension) {
+            const names = {
+                physicalFunctioning: 'Función Física',
+                rolePhysical: 'Rol Físico',
+                bodilyPain: 'Dolor Corporal',
+                generalHealth: 'Salud General',
+                vitality: 'Vitalidad',
+                socialFunctioning: 'Función Social',
+                roleEmotional: 'Rol Emocional',
+                mentalHealth: 'Salud Mental'
+            };
+            return names[dimension] || dimension;
+        }
+
+        function getDimensionDescription(dimension) {
+            const descriptions = {
+                physicalFunctioning: 'Capacidad para realizar actividades físicas como caminar, subir escaleras y realizar esfuerzos.',
+                rolePhysical: 'Limitaciones en el trabajo y actividades diarias debido a problemas de salud física.',
+                bodilyPain: 'Intensidad del dolor y su interferencia con el trabajo normal.',
+                generalHealth: 'Valoración personal del estado de salud actual y perspectivas futuras.',
+                vitality: 'Sensación de energía y vitalidad versus cansancio y agotamiento.',
+                socialFunctioning: 'Interferencia de problemas físicos o emocionales en actividades sociales.',
+                roleEmotional: 'Limitaciones en el trabajo y actividades diarias debido a problemas emocionales.',
+                mentalHealth: 'Estado de ánimo general, incluyendo depresión, ansiedad y bienestar psicológico.'
+            };
+            return descriptions[dimension] || '';
+        }
+
+        function generateAnalysis(scores, answers) {
+            const analysis = {
+                global: '',
+                strengths: [],
+                concerns: [],
+                recommendations: []
+            };
+
+            // Calculate physical and mental component summaries
+            const physicalComponents = ['physicalFunctioning', 'rolePhysical', 'bodilyPain', 'generalHealth'];
+            const mentalComponents = ['vitality', 'socialFunctioning', 'roleEmotional', 'mentalHealth'];
+            
+            const physicalAvg = physicalComponents.reduce((sum, dim) => sum + scores[dim], 0) / physicalComponents.length;
+            const mentalAvg = mentalComponents.reduce((sum, dim) => sum + scores[dim], 0) / mentalComponents.length;
+
+            // Global analysis
+            if (physicalAvg >= 70 && mentalAvg >= 70) {
+                analysis.global = 'Los resultados indican un excelente estado de salud general. Tanto los aspectos físicos como mentales muestran puntuaciones elevadas, sugiriendo una buena calidad de vida relacionada con la salud.';
+            } else if (physicalAvg >= 50 && mentalAvg >= 50) {
+                analysis.global = 'Los resultados muestran un estado de salud satisfactorio en general. Existen algunas áreas que podrían beneficiarse de atención adicional para mejorar la calidad de vida.';
+            } else {
+                analysis.global = 'Los resultados sugieren que existen aspectos de la salud que requieren atención. Se recomienda discutir estos resultados con un profesional de la salud para desarrollar un plan de mejora personalizado.';
+            }
+
+            // Identify strengths and concerns
+            Object.keys(scores).forEach(dimension => {
+                const score = scores[dimension];
+                const name = getDimensionName(dimension);
+                
+                if (score >= 75) {
+                    analysis.strengths.push(`${name}: Puntuación excelente (${score}/100), indicando un funcionamiento óptimo en esta área.`);
+                } else if (score < 50) {
+                    analysis.concerns.push(`${name}: Puntuación que sugiere dificultades (${score}/100). Esta área podría beneficiarse de intervención.`);
+                }
+            });
+
+            // Generate recommendations
+            if (scores.physicalFunctioning < 60) {
+                analysis.recommendations.push('Considere iniciar un programa de ejercicio físico adaptado a sus capacidades, bajo supervisión profesional.');
+            }
+            if (scores.mentalHealth < 60 || scores.roleEmotional < 60) {
+                analysis.recommendations.push('Puede ser beneficioso consultar con un profesional de la salud mental para abordar aspectos emocionales.');
+            }
+            if (scores.bodilyPain < 60) {
+                analysis.recommendations.push('Consulte con su médico sobre estrategias de manejo del dolor y tratamientos disponibles.');
+            }
+            if (scores.vitality < 60) {
+                analysis.recommendations.push('Evalúe sus hábitos de sueño, nutrición y niveles de actividad física. El descanso adecuado es fundamental.');
+            }
+            if (scores.socialFunctioning < 60) {
+                analysis.recommendations.push('Mantenga y fortalezca sus conexiones sociales. El apoyo social es clave para el bienestar general.');
+            }
+
+            if (analysis.recommendations.length === 0) {
+                analysis.recommendations.push('Continúe manteniendo sus hábitos saludables actuales.');
+                analysis.recommendations.push('Realice evaluaciones periódicas para monitorear su estado de salud.');
+            }
+
+            return analysis;
+        }
+
+        // Update progress
+        function updateProgress() {
+            const form = document.getElementById('sf36Form');
+            const totalQuestions = 36;
+            const answeredQuestions = new Set();
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const radios = form.querySelectorAll(`input[name="q${i}"]`);
+                for (const radio of radios) {
+                    if (radio.checked) {
+                        answeredQuestions.add(i);
+                        break;
+                    }
+                }
+            }
+
+            const progress = (answeredQuestions.size / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${answeredQuestions.size} de ${totalQuestions} preguntas completadas`;
+        }
+
+        // Add event listeners to all radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+
+        // Form submission
+        document.getElementById('sf36Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const patientName = document.getElementById('patientName').value;
+            const patientCode = document.getElementById('patientCode').value;
+
+            if (!patientName) {
+                alert('Por favor, ingrese su nombre y apellidos');
+                document.getElementById('patientName').focus();
+                return;
+            }
+
+            // Collect all answers
+            const answers = {
+                nombre: patientName,
+                codigo: patientCode || 'N/A',
+                fecha: new Date().toLocaleDateString('es-ES'),
+                respuestas: {}
+            };
+
+            for (let i = 1; i <= 36; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selected) {
+                    answers.respuestas[`pregunta_${i}`] = {
+                        valor: selected.value,
+                        texto: selected.nextElementSibling.textContent
+                    };
+                }
+            }
+
+            // Calculate scores
+            const scores = {};
+            Object.keys(SF36_SCORING).forEach(dimension => {
+                scores[dimension] = calculateDimensionScore(dimension, answers);
+            });
+
+            answers.scores = scores;
+
+            // Display results
+            displayResults(answers);
+        });
+
+        function displayResults(answers) {
+            const resultsDiv = document.getElementById('results');
+            const summaryDiv = document.getElementById('resultsSummary');
+            const form = document.getElementById('sf36Form');
+            const patientInfo = document.getElementById('patientInfo');
+            const progressBar = document.querySelector('.progress-bar');
+            const progressText = document.querySelector('.progress-text');
+            const instructions = document.querySelector('.instructions');
+
+            // Hide form elements
+            form.style.display = 'none';
+            patientInfo.style.display = 'none';
+            if (progressBar) progressBar.style.display = 'none';
+            if (progressText) progressText.style.display = 'none';
+            if (instructions) instructions.style.display = 'none';
+
+            // Calculate component summaries
+            const physicalComponents = ['physicalFunctioning', 'rolePhysical', 'bodilyPain', 'generalHealth'];
+            const mentalComponents = ['vitality', 'socialFunctioning', 'roleEmotional', 'mentalHealth'];
+            
+            const physicalScore = Math.round(
+                physicalComponents.reduce((sum, dim) => sum + answers.scores[dim], 0) / physicalComponents.length
+            );
+            const mentalScore = Math.round(
+                mentalComponents.reduce((sum, dim) => sum + answers.scores[dim], 0) / mentalComponents.length
+            );
+
+            // Generate analysis
+            const analysis = generateAnalysis(answers.scores, answers);
+
+            // Build summary with scores
+            let summaryHTML = `
+                <div class="result-item">
+                    <strong>Paciente:</strong>
+                    <span>${answers.nombre}</span>
+                </div>
+                <div class="result-item">
+                    <strong>Código:</strong>
+                    <span>${answers.codigo}</span>
+                </div>
+                <div class="result-item">
+                    <strong>Fecha:</strong>
+                    <span>${answers.fecha}</span>
+                </div>
+
+                <div class="score-card">
+                    <h3>📊 Puntuaciones Resumidas</h3>
+                    <div class="summary-components">
+                        <div class="component-card">
+                            <h4>Componente Físico</h4>
+                            <div class="component-score">${physicalScore}</div>
+                            <div class="component-label">de 100</div>
+                        </div>
+                        <div class="component-card">
+                            <h4>Componente Mental</h4>
+                            <div class="component-score">${mentalScore}</div>
+                            <div class="component-label">de 100</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 30px;">Puntuaciones por Dimensión</div>
+                <div class="dimensions-grid">
+            `;
+
+            // Add dimension scores
+            Object.keys(answers.scores).forEach(dimension => {
+                const score = answers.scores[dimension];
+                const interpretation = interpretScore(score);
+                const name = getDimensionName(dimension);
+                const description = getDimensionDescription(dimension);
+
+                summaryHTML += `
+                    <div class="dimension-card">
+                        <div class="dimension-name">${name}</div>
+                        <div class="dimension-score">${score}<span style="font-size: 16px; color: #999;">/100</span></div>
+                        <div class="dimension-bar">
+                            <div class="dimension-bar-fill" style="width: ${score}%; background: ${interpretation.color};"></div>
+                        </div>
+                        <div class="dimension-interpretation" style="color: ${interpretation.color}; font-weight: 600;">
+                            ${interpretation.level}
+                        </div>
+                        <div style="font-size: 11px; color: #888; margin-top: 8px; line-height: 1.4;">
+                            ${description}
+                        </div>
+                    </div>
+                `;
+            });
+
+            summaryHTML += `</div>`;
+
+            // Add analysis section
+            summaryHTML += `
+                <div class="section-title" style="margin-top: 30px;">📋 Análisis de Resultados</div>
+                
+                <div class="interpretation-section">
+                    <h4>Evaluación General</h4>
+                    <p>${analysis.global}</p>
+                </div>
+            `;
+
+            if (analysis.strengths.length > 0) {
+                summaryHTML += `
+                    <div class="interpretation-section" style="border-left-color: #10b981;">
+                        <h4 style="color: #10b981;">✅ Fortalezas Identificadas</h4>
+                        <ul>
+                            ${analysis.strengths.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (analysis.concerns.length > 0) {
+                summaryHTML += `
+                    <div class="interpretation-section" style="border-left-color: #f59e0b;">
+                        <h4 style="color: #f59e0b;">⚠️ Áreas de Atención</h4>
+                        <ul>
+                            ${analysis.concerns.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            summaryHTML += `
+                <div class="interpretation-section" style="border-left-color: #667eea;">
+                    <h4>💡 Recomendaciones</h4>
+                    <ul>
+                        ${analysis.recommendations.map(r => `<li>${r}</li>`).join('')}
+                    </ul>
+                    <p style="margin-top: 15px; font-style: italic; color: #666;">
+                        <strong>Nota importante:</strong> Este análisis es orientativo y no sustituye la evaluación de un profesional de la salud. 
+                        Se recomienda discutir estos resultados con su médico o especialista.
+                    </p>
+                </div>
+            `;
+
+            summaryDiv.innerHTML = summaryHTML;
+            
+            // Show results section with class
+            resultsDiv.classList.add('show');
+            resultsDiv.style.display = 'block';
+
+            // Store results for download
+            window.surveyResults = answers;
+
+            // Render charts
+            setTimeout(() => {
+                renderCharts(answers.scores, physicalScore, mentalScore);
+            }, 100);
+
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderCharts(scores, physicalScore, mentalScore) {
+            // Check if Chart.js loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js no se cargó correctamente');
+                document.querySelectorAll('.chart-container').forEach(container => {
+                    container.style.display = 'none';
+                });
+                return;
+            }
+
+            // Prepare data for radar chart
+            const dimensions = Object.keys(SF36_SCORING);
+            const labels = dimensions.map(d => getDimensionName(d));
+            const data = dimensions.map(d => scores[d]);
+
+            // Color gradient for charts
+            const chartColors = {
+                primary: 'rgba(102, 126, 234, 0.8)',
+                primaryBorder: 'rgba(102, 126, 234, 1)',
+                secondary: 'rgba(118, 75, 162, 0.8)',
+                secondaryBorder: 'rgba(118, 75, 162, 1)',
+                success: 'rgba(16, 185, 129, 0.8)',
+                warning: 'rgba(245, 158, 11, 0.8)',
+                background: 'rgba(102, 126, 234, 0.2)'
+            };
+
+            try {
+                // 1. Radar Chart
+                const radarCtx = document.getElementById('radarChart');
+                if (radarCtx) {
+                    new Chart(radarCtx, {
+                        type: 'radar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Puntuación',
+                                data: data,
+                                backgroundColor: chartColors.background,
+                                borderColor: chartColors.primaryBorder,
+                                borderWidth: 2,
+                                pointBackgroundColor: chartColors.primaryBorder,
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: chartColors.primaryBorder,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        stepSize: 20,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    pointLabels: {
+                                        font: {
+                                            size: 12,
+                                            weight: '600'
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.parsed.r + '/100';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 2. Bar Chart
+                const barCtx = document.getElementById('barChart');
+                if (barCtx) {
+                    // Color bars based on score
+                    const barColors = data.map(score => {
+                        if (score >= 75) return 'rgba(16, 185, 129, 0.8)';
+                        if (score >= 50) return 'rgba(102, 126, 234, 0.8)';
+                        if (score >= 25) return 'rgba(245, 158, 11, 0.8)';
+                        return 'rgba(239, 68, 68, 0.8)';
+                    });
+
+                    new Chart(barCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Puntuación',
+                                data: data,
+                                backgroundColor: barColors,
+                                borderColor: barColors.map(c => c.replace('0.8', '1')),
+                                borderWidth: 2,
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        stepSize: 20,
+                                        callback: function(value) {
+                                            return value;
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        font: {
+                                            size: 10
+                                        },
+                                        maxRotation: 45,
+                                        minRotation: 45
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'Puntuación: ' + context.parsed.y + '/100';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 3. Component Comparison Chart
+                const componentCtx = document.getElementById('componentChart');
+                if (componentCtx) {
+                    new Chart(componentCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Componente Físico', 'Componente Mental'],
+                            datasets: [{
+                                data: [physicalScore, mentalScore],
+                                backgroundColor: [
+                                    'rgba(102, 126, 234, 0.8)',
+                                    'rgba(118, 75, 162, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(102, 126, 234, 1)',
+                                    'rgba(118, 75, 162, 1)'
+                                ],
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        font: {
+                                            size: 14,
+                                            weight: '600'
+                                        },
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + '/100';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error al renderizar gráficos:', error);
+            }
+        }
+
+        function downloadResults() {
+            const results = window.surveyResults;
+            if (!results) return;
+
+            // Create detailed text content with scores
+            let content = `CUESTIONARIO SF-36 - RESULTADOS Y ANÁLISIS\n`;
+            content += `${'='.repeat(60)}\n\n`;
+            content += `Paciente: ${results.nombre}\n`;
+            content += `Código: ${results.codigo}\n`;
+            content += `Fecha: ${results.fecha}\n\n`;
+            content += `${'='.repeat(60)}\n\n`;
+
+            // Add component summaries
+            const physicalComponents = ['physicalFunctioning', 'rolePhysical', 'bodilyPain', 'generalHealth'];
+            const mentalComponents = ['vitality', 'socialFunctioning', 'roleEmotional', 'mentalHealth'];
+            
+            const physicalScore = Math.round(
+                physicalComponents.reduce((sum, dim) => sum + results.scores[dim], 0) / physicalComponents.length
+            );
+            const mentalScore = Math.round(
+                mentalComponents.reduce((sum, dim) => sum + results.scores[dim], 0) / mentalComponents.length
+            );
+
+            content += `PUNTUACIONES RESUMIDAS:\n\n`;
+            content += `Componente Físico: ${physicalScore}/100\n`;
+            content += `Componente Mental: ${mentalScore}/100\n\n`;
+            content += `${'='.repeat(60)}\n\n`;
+
+            content += `PUNTUACIONES POR DIMENSIÓN:\n\n`;
+            Object.keys(results.scores).forEach(dimension => {
+                const score = results.scores[dimension];
+                const interpretation = interpretScore(score);
+                const name = getDimensionName(dimension);
+                const description = getDimensionDescription(dimension);
+                
+                content += `${name}: ${score}/100 - ${interpretation.level}\n`;
+                content += `   ${description}\n\n`;
+            });
+
+            content += `${'='.repeat(60)}\n\n`;
+
+            // Add analysis
+            const analysis = generateAnalysis(results.scores, results);
+            
+            content += `ANÁLISIS DE RESULTADOS:\n\n`;
+            content += `Evaluación General:\n${analysis.global}\n\n`;
+            
+            if (analysis.strengths.length > 0) {
+                content += `Fortalezas Identificadas:\n`;
+                analysis.strengths.forEach(s => content += `- ${s}\n`);
+                content += `\n`;
+            }
+            
+            if (analysis.concerns.length > 0) {
+                content += `Áreas de Atención:\n`;
+                analysis.concerns.forEach(c => content += `- ${c}\n`);
+                content += `\n`;
+            }
+            
+            content += `Recomendaciones:\n`;
+            analysis.recommendations.forEach(r => content += `- ${r}\n`);
+            content += `\n`;
+            
+            content += `NOTA: Este análisis es orientativo y no sustituye la evaluación\n`;
+            content += `de un profesional de la salud.\n\n`;
+            content += `${'='.repeat(60)}\n\n`;
+
+            content += `RESPUESTAS DETALLADAS:\n\n`;
+            for (let i = 1; i <= 36; i++) {
+                const answer = results.respuestas[`pregunta_${i}`];
+                if (answer) {
+                    content += `Pregunta ${i}: ${answer.texto}\n`;
+                }
+            }
+
+            // Create and download file
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `SF36_Analisis_${results.nombre.replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
+            link.click();
+        }
+
+        // Initialize progress on load
+        updateProgress();
+    </script>
+</body>
+</html>
